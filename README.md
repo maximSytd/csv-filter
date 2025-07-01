@@ -5,6 +5,7 @@ install [here](https://docs.astral.sh/uv/getting-started/installation/)
 get dependencies
 ```bash
 uv sync
+source .venv/bin/activate
 ```
 
 run script
