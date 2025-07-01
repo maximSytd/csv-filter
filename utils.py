@@ -13,7 +13,7 @@ AVERAGE_SEQUENCE_ERROR_MESSAGE = (
 
 CSVData: typing.TypeAlias = list[dict[str, str | int | float]]
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class FilterArgumentsData:
     """
     Represents a data class for storing arguments to filter functions
@@ -27,7 +27,11 @@ class FilterArgumentsData:
 def parse_str_to_number(value: str) -> int | float | str:
     """Return and parse string for integer or float numbers."""
     if not isinstance(value, str):
-        raise TypeError(PARSE_VALUE_TYPE_ERROR_MESSAGE.format(type(value)))
+        raise TypeError(
+            PARSE_VALUE_TYPE_ERROR_MESSAGE.format(
+                value_type=type(value),
+            ),
+        )
     try:
         return float(value) if "." in value else int(value)
     except (ValueError, TypeError):
@@ -44,13 +48,13 @@ def parse_filter_args(arg_string: str) -> FilterArgumentsData:
 
 def avg(seq: typing.Sequence[int | float]) -> float:
     """Return average number in sequence."""
-    if not all(isinstance(item, (int, float)) for item in seq):
+    if not all(isinstance(item, (int, float)) for item in seq) or not len(seq):
         raise ValueError(AVERAGE_SEQUENCE_ERROR_MESSAGE)
     return round(sum(seq) / len(seq), 2)
 
 def read_csv(path: pathlib.Path) -> CSVData | None:
     """Return csv file data as a list with dictionaries."""
-    with open(path, "r", newline="") as csvfile:
+    with open(path, "r", newline="", encoding="UTF-8") as csvfile:
         dialect = csv.Sniffer().sniff(csvfile.read())
         csvfile.seek(0)
         reader = csv.reader(csvfile, dialect)
@@ -78,8 +82,8 @@ def where(
     if operator not in filter_funcs:
         raise ValueError(
             OPERATOR_ERROR_MESSAGE.format(
-                operator,
-                "Where",
+                operator=operator,
+                func="Where",
             ),
         )
     return list(filter(filter_funcs[operator.lower()], csv_data))
@@ -94,8 +98,8 @@ def aggregate(
     if operator != "=":
         raise ValueError(
             OPERATOR_ERROR_MESSAGE.format(
-                operator,
-                "Aggregation",
+                operator=operator,
+                func="Aggregation",
             ),
         )
     agg_funcs = {
