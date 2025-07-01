@@ -12,6 +12,8 @@ run script
 uv run main.py -f "datasets/employee.csv" #example
 ```
 
+![alt text](screenshot.png)
+
 tests
 ```bash
 pytest --cov=utils tests/ #80% with main.py
